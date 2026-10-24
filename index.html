@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Französisch Vokabeltrainer - Unité 1 & 2</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f6ff',
+                            100: '#e0edff',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        },
+                        accent: {
+                            purple: '#a855f7',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                        },
+                        darkbg: '#0f172a',
+                        darkcard: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Perspective for 3D Flashcard flip */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Pulse / Glow FX */
+        .glow-blue {
+            box-shadow: 0 0 25px -5px rgba(59, 130, 246, 0.4);
+        }
+        .glow-purple {
+            box-shadow: 0 0 25px -5px rgba(168, 85, 247, 0.4);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+
+    <!-- TOP NAV BAR -->
+    <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-purple flex items-center justify-center text-white font-black text-xl shadow-lg glow-blue">
+                    🇫🇷
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight tracking-wide text-white">VokabelMax <span class="text-xs bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full border border-brand-500/30">Klett Unité 1 & 2</span></h1>
+                    <p class="text-xs text-slate-400">Französisch-Deutsch Trainer</p>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="flex items-center space-x-4 text-sm font-semibold">
+                <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/50" title="Streak Tage">
+                    <i class="fa-solid font-black fa-fire text-amber-500 animate-pulse"></i>
+                    <span id="streak-counter" class="text-slate-200">0</span>
+                </div>
+                <div class="flex items-center space-x-1.5 bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/50" title="Geleistete Punkte">
+                    <i class="fa-solid fa-star text-amber-400"></i>
+                    <span id="score-counter" class="text-slate-200">0</span>
+                </div>
+                <button id="btn-star-filter" onclick="toggleStarredOnly()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-amber-400 transition-colors border border-slate-700/50" title="Nur Favoriten abfragen">
+                    <i class="fa-solid fa-bookmark" id="star-filter-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow flex flex-col justify-center">
+
+        <!-- SETUP / MODE SELECTOR -->
+        <div id="setup-panel" class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 mb-6 shadow-xl backdrop-blur-sm">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                
+                <!-- Unit Select -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Lektion / Unité</label>
+                    <select id="unit-select" onchange="changeFilter()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        <option value="ALL">Alle Vokabeln (Unité 1 & 2)</option>
+                        <option value="U1">Unité 1: Motivés?</option>
+                        <option value="U2">Unité 2: Soupçons</option>
+                        <option value="STARRED">⭐ Nur Favoriten (<span id="starred-count">0</span>)</option>
+                    </select>
+                </div>
+
+                <!-- Direction Select -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Abfrage-Richtung</label>
+                    <select id="direction-select" onchange="changeFilter()" class="w-full bg-slate-900 border border-slate-700 text-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium">
+                        <option value="FR_DE">Französisch ➔ Deutsch</option>
+                        <option value="DE_FR">Deutsch ➔ Französisch</option>
+                        <option value="MIXED">Gemischt (Zufällig)</option>
+                    </select>
+                </div>
+
+                <!-- Learning Mode Select -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Lern-Modus</label>
+                    <div class="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-xl border border-slate-700">
+                        <button onclick="setMode('mc')" id="mode-mc" class="mode-btn py-2 text-xs font-bold rounded-lg transition-all bg-brand-600 text-white shadow">Multiple C.</button>
+                        <button onclick="setMode('card')" id="mode-card" class="mode-btn py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition-all">Kartei</button>
+                        <button onclick="setMode('write')" id="mode-write" class="mode-btn py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition-all">Eingabe</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-700/50">
+                <span>Verfügbare Vokabeln im Pool: <strong id="pool-count" class="text-brand-400">0</strong></span>
+                <button onclick="resetStats()" class="hover:text-rose-400 transition-colors flex items-center space-x-1">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Statistik zurücksetzen</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="mb-6">
+            <div class="flex justify-between text-xs font-semibold text-slate-400 mb-2">
+                <span id="progress-text">Fortschritt: 0 / 0</span>
+                <span id="accuracy-text">Genauigkeit: 100%</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                <div id="progress-bar" class="h-full bg-gradient-to-r from-brand-500 via-accent-purple to-accent-emerald rounded-full transition-all duration-300 w-0"></div>
+            </div>
+        </div>
+
+        <!-- APP CONTAINER FOR MODES -->
+        <div id="quiz-container" class="relative min-h-[360px] flex flex-col justify-center">
+
+            <!-- MODE 1: MULTIPLE CHOICE -->
+            <div id="view-mc" class="space-y-6">
+                <!-- Question Card -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center shadow-xl relative overflow-hidden group">
+                    <button id="mc-star-btn" onclick="toggleStarCurrent()" class="absolute top-4 right-4 text-slate-600 hover:text-amber-400 text-xl transition-colors">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                    <button id="mc-audio-btn" onclick="speakCurrentWord()" class="absolute top-4 left-4 text-slate-400 hover:text-brand-400 text-xl transition-colors p-2 bg-slate-900/50 rounded-lg">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    
+                    <span id="mc-tag" class="inline-block px-3 py-1 bg-slate-700/50 text-slate-300 text-xs rounded-full font-semibold uppercase tracking-wider mb-3">Unité 1</span>
+                    <h2 id="mc-question" class="text-2xl md:text-4xl font-extrabold text-white mb-2">Word Prompt</h2>
+                    <p id="mc-subtext" class="text-xs text-slate-400 italic">Antworte auf Deutsch</p>
+                </div>
+
+                <!-- 4 Option Grid -->
+                <div id="mc-options" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+
+            <!-- MODE 2: FLASHCARD -->
+            <div id="view-card" class="hidden flex flex-col items-center">
+                <div class="w-full h-80 perspective-1000 cursor-pointer" onclick="flipCard()">
+                    <div id="flashcard" class="relative w-full h-full duration-500 transform-style-3d transition-transform rounded-2xl shadow-2xl">
+                        
+                        <!-- Front side -->
+                        <div class="absolute inset-0 w-full h-full bg-slate-800 border-2 border-slate-700 rounded-2xl p-8 flex flex-col justify-between items-center text-center backface-hidden">
+                            <div class="w-full flex justify-between items-center">
+                                <button onclick="event.stopPropagation(); speakCurrentWord()" class="text-slate-400 hover:text-brand-400 text-xl p-2 bg-slate-900/50 rounded-lg">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <span id="card-tag-front" class="px-3 py-1 bg-slate-700/50 text-slate-300 text-xs rounded-full font-semibold">Unité 1</span>
+                                <button id="card-star-btn" onclick="event.stopPropagation(); toggleStarCurrent()" class="text-slate-600 hover:text-amber-400 text-xl">
+                                    <i class="fa-solid fa-star"></i>
+                                </button>
+                            </div>
+                            <div>
+                                <h2 id="card-front-text" class="text-3xl md:text-4xl font-extrabold text-white mb-2">Word Front</h2>
+                                <p class="text-xs text-slate-400">Klicken zum Umdrehen</p>
+                            </div>
+                            <div class="text-slate-500 text-xs flex items-center gap-1">
+                                <i class="fa-solid fa-rotate"></i> Karte drehen
+                            </div>
+                        </div>
+
+                        <!-- Back side -->
+                        <div class="absolute inset-0 w-full h-full bg-slate-900 border-2 border-brand-500/50 rounded-2xl p-8 flex flex-col justify-between items-center text-center backface-hidden rotate-y-180">
+                            <div class="w-full flex justify-between items-center">
+                                <span id="card-tag-back" class="px-3 py-1 bg-brand-500/20 text-brand-400 text-xs rounded-full font-semibold">Übersetzung</span>
+                            </div>
+                            <div>
+                                <h2 id="card-back-text" class="text-2xl md:text-3xl font-bold text-emerald-400 mb-2">Word Back</h2>
+                                <p id="card-example-text" class="text-xs text-slate-400 max-w-md italic"></p>
+                            </div>
+                            <div class="text-slate-500 text-xs">
+                                Bewerte deine Antwort unten
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Self-Grading Buttons (Shown when flipped) -->
+                <div id="card-actions" class="grid grid-cols-3 gap-3 w-full mt-6 opacity-50 pointer-events-none transition-all">
+                    <button onclick="gradeCard('hard')" class="py-3 px-4 bg-slate-800 border border-rose-500/30 hover:bg-rose-500/20 text-rose-400 rounded-xl font-bold text-sm transition-all flex flex-col items-center">
+                        <span>Schwer</span>
+                        <span class="text-[10px] font-normal opacity-70">Wiederholen</span>
+                    </button>
+                    <button onclick="gradeCard('good')" class="py-3 px-4 bg-slate-800 border border-amber-500/30 hover:bg-amber-500/20 text-amber-400 rounded-xl font-bold text-sm transition-all flex flex-col items-center">
+                        <span>Gut</span>
+                        <span class="text-[10px] font-normal opacity-70">Nächstes Mal</span>
+                    </button>
+                    <button onclick="gradeCard('easy')" class="py-3 px-4 bg-slate-800 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 rounded-xl font-bold text-sm transition-all flex flex-col items-center">
+                        <span>Einfach</span>
+                        <span class="text-[10px] font-normal opacity-70">Gelernt (+10 pt)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODE 3: WRITING MODE -->
+            <div id="view-write" class="hidden space-y-6">
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center shadow-xl relative">
+                    <button id="write-star-btn" onclick="toggleStarCurrent()" class="absolute top-4 right-4 text-slate-600 hover:text-amber-400 text-xl transition-colors">
+                        <i class="fa-solid fa-star"></i>
+                    </button>
+                    <button id="write-audio-btn" onclick="speakCurrentWord()" class="absolute top-4 left-4 text-slate-400 hover:text-brand-400 text-xl transition-colors p-2 bg-slate-900/50 rounded-lg">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </button>
+                    
+                    <span id="write-tag" class="inline-block px-3 py-1 bg-slate-700/50 text-slate-300 text-xs rounded-full font-semibold uppercase tracking-wider mb-3">Unité 1</span>
+                    <h2 id="write-question" class="text-2xl md:text-4xl font-extrabold text-white mb-2">Word Prompt</h2>
+                    <p id="write-subtext" class="text-xs text-slate-400">Schreibe die richtige Antwort:</p>
+                </div>
+
+                <!-- Input Box & Accents -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-4 shadow-xl space-y-4">
+                    <form onsubmit="submitWrittenAnswer(event)" class="relative">
+                        <input type="text" id="write-input" autocomplete="off" placeholder="Antwort hier eingeben..." class="w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-5 py-4 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 pr-32">
+                        <button type="submit" id="write-submit-btn" class="absolute right-2 top-2 bottom-2 px-6 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-lg transition-colors flex items-center justify-center">
+                            Prüfen
+                        </button>
+                    </form>
+
+                    <!-- Accent Buttons for French typing -->
+                    <div id="accent-bar" class="flex flex-wrap gap-1.5 justify-center pt-2 border-t border-slate-700/50">
+                        <span class="text-xs text-slate-400 self-center mr-2">Sonderzeichen:</span>
+                        <button type="button" onclick="insertAccent('é')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">é</button>
+                        <button type="button" onclick="insertAccent('è')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">è</button>
+                        <button type="button" onclick="insertAccent('ê')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">ê</button>
+                        <button type="button" onclick="insertAccent('à')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">à</button>
+                        <button type="button" onclick="insertAccent('â')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">â</button>
+                        <button type="button" onclick="insertAccent('ç')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">ç</button>
+                        <button type="button" onclick="insertAccent('î')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">î</button>
+                        <button type="button" onclick="insertAccent('ô')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">ô</button>
+                        <button type="button" onclick="insertAccent('ù')" class="px-3 py-1 bg-slate-900 hover:bg-slate-700 text-white text-sm font-semibold rounded-md border border-slate-700">ù</button>
+                    </div>
+                </div>
+
+                <!-- Answer Feedback Box -->
+                <div id="write-feedback" class="hidden p-4 rounded-xl text-center font-bold text-sm"></div>
+            </div>
+
+            <!-- COMPLETED / SUMMARY SCREEN -->
+            <div id="view-summary" class="hidden bg-slate-800 border border-slate-700 rounded-2xl p-8 text-center space-y-6 shadow-2xl">
+                <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-4xl mx-auto border border-emerald-500/30">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <h2 class="text-3xl font-extrabold text-white mb-2">Großartige Arbeit! 🎉</h2>
+                    <p class="text-slate-400 text-sm">Du hast alle ausgewählten Vokabeln in dieser Runde absolviert.</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 max-w-md mx-auto pt-4">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="text-xs text-slate-400 font-semibold mb-1">Gelernt</div>
+                        <div id="summary-total" class="text-2xl font-bold text-white">0</div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="text-xs text-slate-400 font-semibold mb-1">Genauigkeit</div>
+                        <div id="summary-accuracy" class="text-2xl font-bold text-emerald-400">100%</div>
+                    </div>
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="text-xs text-slate-400 font-semibold mb-1">Punkte</div>
+                        <div id="summary-score" class="text-2xl font-bold text-amber-400">+0</div>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex justify-center gap-4">
+                    <button onclick="restartSession()" class="px-8 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Noch einmal üben</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800/80 py-4 text-center text-xs text-slate-500">
+        <p>Französisch Vokabeltrainer • Klett Unité 1 & 2 (Seiten 162-169)</p>
+    </footer>
+
+    <!-- LOGIC SCRIPT -->
+    <script>
+        // FULL VOCABULARY DATASET FROM TEXTBOOK PAGES 162-169
+        const rawVocabData = [
+            // PAGE 162 - 163 (Unité 1: Motivés?)
+            { fr: "la vie", de: "das Leben", unit: "U1", p: 162 },
+            { fr: "un rêve", de: "ein Traum", unit: "U1", p: 162 },
+            { fr: "la rentrée", de: "der Schuljahresbeginn", unit: "U1", p: 162 },
+            { fr: "une année", de: "ein Jahr", unit: "U1", p: 162 },
+            { fr: "une activité", de: "eine Freizeitbeschäftigung", unit: "U1", p: 162 },
+            { fr: "penser que", de: "denken, dass", unit: "U1", p: 162 },
+            { fr: "important / importante", de: "wichtig", unit: "U1", p: 162 },
+            { fr: "intéressant / intéressante", de: "interessant", unit: "U1", p: 162 },
+            { fr: "motivé / motivée", de: "motiviert sein", unit: "U1", p: 162 },
+            { fr: "Ça y est!", de: "Geschafft! Es ist so weit!", unit: "U1", p: 162 },
+            { fr: "revenir", de: "zurückkommen", unit: "U1", p: 162 },
+            { fr: "être de bonne humeur", de: "guter Laune sein", unit: "U1", p: 162 },
+            { fr: "un concours", de: "ein Wettbewerb, ein Preisausschreiben", unit: "U1", p: 162 },
+            { fr: "un stage", de: "ein Praktikum, ein Kurs", unit: "U1", p: 162 },
+            { fr: "le karaté", de: "das Karate", unit: "U1", p: 162 },
+            { fr: "un auteur / une auteure", de: "ein Autor / eine Autorin", unit: "U1", p: 162 },
+            { fr: "une colonie de vacances", de: "ein Ferienlager", unit: "U1", p: 162 },
+            { fr: "la montagne", de: "der Berg, das Gebirge", unit: "U1", p: 162 },
+            { fr: "jouer de", de: "etw. spielen (ein Instrument)", unit: "U1", p: 162 },
+            { fr: "C'est parti pour...", de: "Los geht's mit...", unit: "U1", p: 162 },
+            { fr: "un chemin", de: "ein Weg", unit: "U1", p: 162 },
+            { fr: "une résolution", de: "ein Beschluss, ein Vorsatz", unit: "U1", p: 162 },
+            { fr: "un choc", de: "ein Schock, ein Aufprall", unit: "U1", p: 162 },
+            { fr: "faire un choc à qn", de: "jdm. einen Schock versetzen", unit: "U1", p: 162 },
+            { fr: "la liberté", de: "die Freiheit", unit: "U1", p: 163 },
+            { fr: "reprendre qc", de: "etw. wieder aufnehmen, zurückkommen", unit: "U1", p: 163 },
+            { fr: "une pêche", de: "ein Pfirsich", unit: "U1", p: 163 },
+            { fr: "donner la pêche à qn", de: "jdm. aufmuntern", unit: "U1", p: 163 },
+            { fr: "ne ... pas du tout", de: "überhaupt nicht", unit: "U1", p: 163 },
+            { fr: "croire qc", de: "etw. glauben", unit: "U1", p: 163 },
+            { fr: "rire (de qn/qc)", de: "(über jdn./etw.) lachen", unit: "U1", p: 163 },
+            { fr: "offrir qc à qn", de: "jdm. etw. anbieten, schenken", unit: "U1", p: 163 },
+            { fr: "réussir", de: "Erfolg haben, erfolgreich sein", unit: "U1", p: 163 },
+            { fr: "un succès", de: "ein Erfolg", unit: "U1", p: 163 },
+            { fr: "l'argent (m.)", de: "das Geld", unit: "U1", p: 163 },
+            { fr: "rester assis / assise", de: "sitzen bleiben", unit: "U1", p: 163 },
+            { fr: "prendre l'air", de: "an die frische Luft gehen", unit: "U1", p: 163 },
+            { fr: "imaginer", de: "sich etw. vorstellen", unit: "U1", p: 163 },
+            { fr: "l'énergie (f.)", de: "die Energie", unit: "U1", p: 163 },
+            { fr: "un entraînement", de: "ein Training", unit: "U1", p: 163 },
+            { fr: "au moins", de: "mindestens, wenigstens", unit: "U1", p: 163 },
+            { fr: "risquer de faire qc", de: "riskieren, etw. zu tun", unit: "U1", p: 163 },
+            { fr: "arrêter (de faire qc)", de: "aufhören (etw. zu tun)", unit: "U1", p: 163 },
+
+            // PAGE 164 - 165
+            { fr: "mieux", de: "besser", unit: "U1", p: 164 },
+            { fr: "l'enfer (m.)", de: "die Hölle", unit: "U1", p: 164 },
+            { fr: "créer qc", de: "etw. gründen, erschaffen", unit: "U1", p: 164 },
+            { fr: "un groupe", de: "eine Band, eine Gruppe", unit: "U1", p: 164 },
+            { fr: "n'importe quoi", de: "irgendetwas, Unsinn", unit: "U1", p: 164 },
+            { fr: "réaliser qc", de: "etw. realisieren, verwirklichen", unit: "U1", p: 164 },
+            { fr: "un projet", de: "ein Projekt", unit: "U1", p: 164 },
+            { fr: "s'occuper de qn/qc", de: "sich mit jdm./etw. beschäftigen, kümmern", unit: "U1", p: 164 },
+            { fr: "une annonce", de: "eine Anzeige, eine Annonce", unit: "U1", p: 164 },
+            { fr: "changer qc", de: "etw. ändern, wechseln", unit: "U1", p: 164 },
+            { fr: "motiver qn", de: "jdn. motivieren", unit: "U1", p: 164 },
+            { fr: "partager qc", de: "etw. teilen", unit: "U1", p: 164 },
+            { fr: "un numéro", de: "eine Nummer, Ausgabe", unit: "U1", p: 164 },
+            { fr: "stresser", de: "sich stressen", unit: "U1", p: 164 },
+            { fr: "le bac", de: "das Abitur", unit: "U1", p: 164 },
+            { fr: "mentir", de: "lügen", unit: "U1", p: 164 },
+            { fr: "rien ne ...", de: "nichts ...", unit: "U1", p: 164 },
+            { fr: "personne ne ...", de: "niemand ...", unit: "U1", p: 164 },
+            { fr: "enfermer qn/qc", de: "jdn./etw. einschließen", unit: "U1", p: 164 },
+            { fr: "Tu vas aller mieux.", de: "Es wird dir besser gehen.", unit: "U1", p: 164 },
+            { fr: "ne ... personne", de: "niemand", unit: "U1", p: 164 },
+            { fr: "rappeler qn/qc à qn", de: "jdn. an jdn./etw. erinnern", unit: "U1", p: 165 },
+            { fr: "un refrain", de: "ein Refrain", unit: "U1", p: 165 },
+            { fr: "juste", de: "nur, bloß", unit: "U1", p: 165 },
+            { fr: "servir à qc", de: "zu etw. nützen, dienen", unit: "U1", p: 165 },
+            { fr: "ne ... pas non plus", de: "auch nicht", unit: "U1", p: 165 },
+            { fr: "à mon avis", de: "meiner Meinung nach", unit: "U1", p: 165 },
+            { fr: "c'est pourquoi", de: "deshalb", unit: "U1", p: 165 },
+            { fr: "seulement", de: "nur", unit: "U1", p: 165 },
+            { fr: "un dîner", de: "ein Abendessen", unit: "U1", p: 165 },
+
+            // PAGE 166 - 167 (Unité 2: Soupçons)
+            { fr: "un livre pour la jeunesse", de: "ein Jugendbuch", unit: "U2", p: 167 },
+            { fr: "un objet", de: "ein Gegenstand", unit: "U2", p: 167 },
+            { fr: "un regard", de: "ein Blick", unit: "U2", p: 167 },
+            { fr: "une coiffure", de: "eine Frisur", unit: "U2", p: 167 },
+            { fr: "accepter qc", de: "etw. akzeptieren, annehmen", unit: "U2", p: 167 },
+            { fr: "une couverture", de: "eine Decke, Buchumschlag", unit: "U2", p: 167 },
+            { fr: "un voleur / une voleuse", de: "ein Dieb / eine Diebin", unit: "U2", p: 167 },
+            { fr: "un système", de: "ein System", unit: "U2", p: 167 },
+            { fr: "la moyenne", de: "der Durchschnitt", unit: "U2", p: 167 },
+            { fr: "rendre qc à qn", de: "jdm. etw. zurückgeben", unit: "U2", p: 167 },
+            { fr: "terminer qc", de: "etw. beenden, fertigstellen", unit: "U2", p: 167 },
+            { fr: "une route", de: "eine Landstraße, Route", unit: "U2", p: 167 },
+            { fr: "lorsque", de: "wenn, als", unit: "U2", p: 167 },
+            { fr: "une épaule", de: "eine Schulter", unit: "U2", p: 167 },
+            { fr: "jaloux / jalouse de qn", de: "eifersüchtig auf jdn.", unit: "U2", p: 167 },
+            { fr: "une impression", de: "ein Eindruck", unit: "U2", p: 167 },
+            { fr: "quelques", de: "einige", unit: "U2", p: 167 },
+            { fr: "avoir la pêche", de: "gut drauf sein", unit: "U2", p: 167 },
+
+            // PAGE 168 - 169
+            { fr: "africain / africaine", de: "afrikanisch", unit: "U2", p: 168 },
+            { fr: "la Côte d'Ivoire", de: "die Elfenbeinküste", unit: "U2", p: 168 },
+            { fr: "dessiner qc", de: "etw. zeichnen", unit: "U2", p: 168 },
+            { fr: "encourager qn", de: "jdn. ermutigen", unit: "U2", p: 168 },
+            { fr: "un sourire", de: "ein Lächeln", unit: "U2", p: 168 },
+            { fr: "au fond de qc", de: "hinten in etw.", unit: "U2", p: 168 },
+            { fr: "une statuette", de: "eine Figur, Statuette", unit: "U2", p: 168 },
+            { fr: "disparaître", de: "verschwinden", unit: "U2", p: 168 },
+            { fr: "toucher qn/qc", de: "jdn./etw. berühren, anfassen", unit: "U2", p: 168 },
+            { fr: "une larme", de: "eine Träne", unit: "U2", p: 168 },
+            { fr: "fouiller dans qc", de: "etw. durchsuchen", unit: "U2", p: 168 },
+            { fr: "voler qc", de: "etw. stehlen", unit: "U2", p: 168 },
+            { fr: "un principal / une principale", de: "ein Schulleiter / eine Schulleiterin", unit: "U2", p: 168 },
+            { fr: "dehors", de: "draußen, im Freien", unit: "U2", p: 168 },
+            { fr: "rapporter qc", de: "etw. mitbringen", unit: "U2", p: 168 },
+            { fr: "parmi", de: "unter", unit: "U2", p: 168 },
+            { fr: "l'Afrique (f.)", de: "Afrika", unit: "U2", p: 168 },
+            { fr: "furieux / furieuse", de: "wütend, zornig", unit: "U2", p: 168 },
+            { fr: "profiter de qc", de: "etw. ausnutzen", unit: "U2", p: 168 },
+            { fr: "une découverte", de: "eine Entdeckung", unit: "U2", p: 168 },
+            { fr: "arriver à faire qc", de: "es schaffen, etw. zu tun", unit: "U2", p: 168 },
+            { fr: "le lendemain", de: "am folgenden Tag", unit: "U2", p: 168 },
+            { fr: "devenir", de: "jdm./etw. werden", unit: "U2", p: 168 },
+            { fr: "garder qc", de: "etw. behalten", unit: "U2", p: 169 },
+            { fr: "sinon", de: "sonst, andernfalls", unit: "U2", p: 169 },
+            { fr: "clair / claire", de: "hell, klar", unit: "U2", p: 169 },
+            { fr: "un casier", de: "ein Fach", unit: "U2", p: 169 },
+            { fr: "une autorisation", de: "eine Erlaubnis, Genehmigung", unit: "U2", p: 169 },
+            { fr: "une seconde", de: "eine Sekunde", unit: "U2", p: 169 },
+            { fr: "courir", de: "laufen, rennen", unit: "U2", p: 169 },
+            { fr: "éclater de rire", de: "in Gelächter ausbrechen", unit: "U2", p: 169 },
+            { fr: "pendant que", de: "während", unit: "U2", p: 169 },
+            { fr: "une armoire", de: "ein Schrank", unit: "U2", p: 169 },
+            { fr: "à moitié", de: "zur Hälfte, halb", unit: "U2", p: 169 },
+            { fr: "cacher qc", de: "etw. verstecken", unit: "U2", p: 169 },
+            { fr: "un pas", de: "ein Schritt", unit: "U2", p: 169 },
+            { fr: "de près", de: "aus der Nähe, von Nahem", unit: "U2", p: 169 },
+            { fr: "hésiter à faire qc", de: "zögern, etw. zu tun", unit: "U2", p: 169 },
+            { fr: "une voix", de: "eine Stimme", unit: "U2", p: 169 },
+            { fr: "un médicament", de: "ein Medikament", unit: "U2", p: 169 },
+            { fr: "dénoncer qn", de: "jdn. verraten", unit: "U2", p: 169 },
+            { fr: "autour de qn/qc", de: "um jdn./etw. herum", unit: "U2", p: 169 },
+            { fr: "soupçonner qn de qc", de: "jdn. einer Sache verdächtigen", unit: "U2", p: 169 }
+        ];
+
+        // APP STATE
+        let activePool = [];
+        let currentIndex = 0;
+        let currentMode = 'mc'; // 'mc', 'card', 'write'
+        let currentDirection = 'FR_DE'; // 'FR_DE', 'DE_FR', 'MIXED'
+        let currentUnitFilter = 'ALL';
+        let starredIds = new Set(JSON.parse(localStorage.getItem('french_trainer_starred') || '[]'));
+        let streak = parseInt(localStorage.getItem('french_trainer_streak') || '0');
+        let score = parseInt(localStorage.getItem('french_trainer_score') || '0');
+        
+        let correctAnswersCount = 0;
+        let totalAnsweredCount = 0;
+        let isFlipped = false;
+        let isAnswerSubmitted = false;
+
+        // SPEECH SYNTHESIS
+        function speakCurrentWord() {
+            if (!('speechSynthesis' in window)) return;
+            const item = activePool[currentIndex];
+            if (!item) return;
+
+            let isFrench = true;
+            if (item.direction === 'DE_FR') {
+                isFrench = false;
+            }
+
+            const textToSpeak = isFrench ? item.fr : item.fr;
+            const utterance = new SpeechSynthesisUtterance(textToSpeak);
+            utterance.lang = 'fr-FR';
+            utterance.rate = 0.9;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // INITIALIZATION
+        window.onload = function() {
+            updateStarredCountUI();
+            updateStatsUI();
+            changeFilter();
+        };
+
+        function updateStarredCountUI() {
+            document.getElementById('starred-count').innerText = starredIds.size;
+        }
+
+        function updateStatsUI() {
+            document.getElementById('streak-counter').innerText = streak;
+            document.getElementById('score-counter').innerText = score;
+        }
+
+        function saveStats() {
+            localStorage.setItem('french_trainer_streak', streak);
+            localStorage.setItem('french_trainer_score', score);
+            localStorage.setItem('french_trainer_starred', JSON.stringify([...starredIds]));
+            updateStatsUI();
+            updateStarredCountUI();
+        }
+
+        function resetStats() {
+            if (confirm("Möchtest du wirklich deine Punkte und dein Streak zurücksetzen?")) {
+                streak = 0;
+                score = 0;
+                saveStats();
+            }
+        }
+
+        // FILTER & POOL PREPARATION
+        function changeFilter() {
+            currentUnitFilter = document.getElementById('unit-select').value;
+            currentDirection = document.getElementById('direction-select').value;
+
+            let filtered = rawVocabData.map((item, idx) => ({ ...item, id: idx }));
+
+            if (currentUnitFilter === 'U1') {
+                filtered = filtered.filter(item => item.unit === 'U1');
+            } else if (currentUnitFilter === 'U2') {
+                filtered = filtered.filter(item => item.unit === 'U2');
+            } else if (currentUnitFilter === 'STARRED') {
+                filtered = filtered.filter(item => starredIds.has(item.id));
+            }
+
+            if (filtered.length === 0) {
+                alert("Keine Vokabeln in diesem Filter vorhanden!");
+                document.getElementById('unit-select').value = 'ALL';
+                changeFilter();
+                return;
+            }
+
+            activePool = shuffleArray(filtered).map(item => {
+                let dir = currentDirection;
+                if (dir === 'MIXED') {
+                    dir = Math.random() > 0.5 ? 'FR_DE' : 'DE_FR';
+                }
+                return { ...item, direction: dir };
+            });
+
+            currentIndex = 0;
+            correctAnswersCount = 0;
+            totalAnsweredCount = 0;
+
+            document.getElementById('pool-count').innerText = activePool.length;
+            renderCurrentQuestion();
+        }
+
+        function toggleStarredOnly() {
+            const select = document.getElementById('unit-select');
+            if (select.value === 'STARRED') {
+                select.value = 'ALL';
+            } else {
+                select.value = 'STARRED';
+            }
+            changeFilter();
+        }
+
+        function shuffleArray(array) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // MODE SWITCHING
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow');
+                btn.classList.add('text-slate-400');
+            });
+            
+            document.getElementById(`mode-${mode}`).classList.add('bg-brand-600', 'text-white', 'shadow');
+            document.getElementById(`mode-${mode}`).classList.remove('text-slate-400');
+
+            document.getElementById('view-mc').classList.add('hidden');
+            document.getElementById('view-card').classList.add('hidden');
+            document.getElementById('view-write').classList.add('hidden');
+            document.getElementById('view-summary').classList.add('hidden');
+
+            document.getElementById(`view-${mode}`).classList.remove('hidden');
+
+            renderCurrentQuestion();
+        }
+
+        // STAR MANAGEMENT FOR CURRENT ITEM
+        function toggleStarCurrent() {
+            const currentItem = activePool[currentIndex];
+            if (!currentItem) return;
+
+            if (starredIds.has(currentItem.id)) {
+                starredIds.delete(currentItem.id);
+            } else {
+                starredIds.add(currentItem.id);
+            }
+            saveStats();
+            updateStarIcons();
+        }
+
+        function updateStarIcons() {
+            const currentItem = activePool[currentIndex];
+            if (!currentItem) return;
+
+            const isStarred = starredIds.has(currentItem.id);
+            const colorClass = isStarred ? 'text-amber-400' : 'text-slate-600';
+
+            ['mc-star-btn', 'card-star-btn', 'write-star-btn'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (btn) {
+                    btn.className = `absolute top-4 right-4 ${colorClass} hover:text-amber-400 text-xl transition-colors`;
+                }
+            });
+
+            const filterIcon = document.getElementById('star-filter-icon');
+            if (currentUnitFilter === 'STARRED') {
+                filterIcon.classList.add('text-amber-400');
+            } else {
+                filterIcon.classList.remove('text-amber-400');
+            }
+        }
+
+        // PROGRESS UPDATE
+        function updateProgress() {
+            const total = activePool.length;
+            const current = currentIndex;
+            const pct = total > 0 ? (current / total) * 100 : 0;
+            
+            document.getElementById('progress-bar').style.width = `${pct}%`;
+            document.getElementById('progress-text').innerText = `Fortschritt: ${current} / ${total}`;
+
+            const accuracy = totalAnsweredCount > 0 ? Math.round((correctAnswersCount / totalAnsweredCount) * 100) : 100;
+            document.getElementById('accuracy-text').innerText = `Genauigkeit: ${accuracy}%`;
+        }
+
+        // RENDER QUESTION
+        function renderCurrentQuestion() {
+            if (currentIndex >= activePool.length) {
+                showSummary();
+                return;
+            }
+
+            updateProgress();
+            updateStarIcons();
+
+            const item = activePool[currentIndex];
+            const isFrPrompt = item.direction === 'FR_DE';
+
+            const promptText = isFrPrompt ? item.fr : item.de;
+            const answerText = isFrPrompt ? item.de : item.fr;
+
+            // RENDER MULTIPLE CHOICE
+            if (currentMode === 'mc') {
+                isAnswerSubmitted = false;
+                document.getElementById('mc-tag').innerText = `${item.unit} • Seite ${item.p}`;
+                document.getElementById('mc-question').innerText = promptText;
+                document.getElementById('mc-subtext').innerText = isFrPrompt ? "Wähle die deutsche Übersetzung:" : "Wähle die französische Übersetzung:";
+
+                const options = [answerText];
+                const poolCopy = rawVocabData.filter(v => v.id !== item.id);
+                const shuffledPool = shuffleArray(poolCopy);
+
+                for (let i = 0; i < 3 && i < shuffledPool.length; i++) {
+                    options.push(isFrPrompt ? shuffledPool[i].de : shuffledPool[i].fr);
+                }
+
+                const finalOptions = shuffleArray(options);
+                const container = document.getElementById('mc-options');
+                container.innerHTML = '';
+
+                finalOptions.forEach((optText) => {
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left bg-slate-800/90 border border-slate-700/80 hover:bg-slate-700/80 text-slate-100 rounded-xl p-4 font-semibold text-sm md:text-base transition-all flex items-center justify-between group shadow-md';
+                    btn.innerHTML = `
+                        <span>${optText}</span>
+                        <div class="w-6 h-6 rounded-full border border-slate-600 group-hover:border-brand-400 flex items-center justify-center text-xs text-transparent group-hover:text-brand-400">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    `;
+                    btn.onclick = () => handleMCOptionSelect(optText, answerText, btn);
+                    container.appendChild(btn);
+                });
+            }
+
+            // RENDER FLASHCARD
+            if (currentMode === 'card') {
+                isFlipped = false;
+                const cardEl = document.getElementById('flashcard');
+                cardEl.classList.remove('rotate-y-180');
+
+                document.getElementById('card-tag-front').innerText = `${item.unit} • S. ${item.p}`;
+                document.getElementById('card-front-text').innerText = promptText;
+                document.getElementById('card-back-text').innerText = answerText;
+                document.getElementById('card-example-text').innerText = `Unité ${item.unit} (Seite ${item.p})`;
+
+                document.getElementById('card-actions').classList.add('opacity-50', 'pointer-events-none');
+            }
+
+            // RENDER WRITING
+            if (currentMode === 'write') {
+                isAnswerSubmitted = false;
+                document.getElementById('write-tag').innerText = `${item.unit} • Seite ${item.p}`;
+                document.getElementById('write-question').innerText = promptText;
+                document.getElementById('write-subtext').innerText = isFrPrompt ? "Antworte auf Deutsch:" : "Antworte auf Französisch (auf Akzente achten!):";
+                
+                const input = document.getElementById('write-input');
+                input.value = '';
+                input.disabled = false;
+                input.className = "w-full bg-slate-900 border border-slate-700 text-white rounded-xl px-5 py-4 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 pr-32";
+                
+                const submitBtn = document.getElementById('write-submit-btn');
+                submitBtn.innerText = 'Prüfen';
+                submitBtn.disabled = false;
+
+                const feedback = document.getElementById('write-feedback');
+                feedback.classList.add('hidden');
+
+                setTimeout(() => input.focus(), 100);
+            }
+        }
+
+        // MC OPTION HANDLER
+        function handleMCOptionSelect(selected, correct, btnEl) {
+            if (isAnswerSubmitted) return;
+            isAnswerSubmitted = true;
+            totalAnsweredCount++;
+
+            const isCorrect = selected === correct;
+            const container = document.getElementById('mc-options');
+            const buttons = container.querySelectorAll('button');
+
+            buttons.forEach(b => {
+                b.classList.add('pointer-events-none');
+                if (b.innerText.includes(correct)) {
+                    b.classList.remove('bg-slate-800/90', 'border-slate-700/80');
+                    b.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-300');
+                }
+            });
+
+            if (isCorrect) {
+                correctAnswersCount++;
+                score += 10;
+                streak++;
+                saveStats();
+            } else {
+                btnEl.classList.remove('bg-slate-800/90', 'border-slate-700/80');
+                btnEl.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-300');
+                streak = 0;
+                saveStats();
+            }
+
+            setTimeout(() => {
+                currentIndex++;
+                renderCurrentQuestion();
+            }, 1200);
+        }
+
+        // FLASHCARD HANDLERS
+        function flipCard() {
+            const cardEl = document.getElementById('flashcard');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardEl.classList.add('rotate-y-180');
+                document.getElementById('card-actions').classList.remove('opacity-50', 'pointer-events-none');
+                speakCurrentWord();
+            } else {
+                cardEl.classList.remove('rotate-y-180');
+            }
+        }
+
+        function gradeCard(grade) {
+            totalAnsweredCount++;
+            if (grade === 'easy') {
+                correctAnswersCount++;
+                score += 10;
+                streak++;
+            } else if (grade === 'good') {
+                correctAnswersCount++;
+                score += 5;
+            } else {
+                streak = 0;
+            }
+            saveStats();
+
+            currentIndex++;
+            renderCurrentQuestion();
+        }
+
+        // WRITING MODE HANDLERS
+        function insertAccent(char) {
+            const input = document.getElementById('write-input');
+            input.value += char;
+            input.focus();
+        }
+
+        function cleanString(str) {
+            return str.toLowerCase()
+                .trim()
+                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "")
+                .replace(/\s+/g, " ");
+        }
+
+        function submitWrittenAnswer(e) {
+            e.preventDefault();
+            if (isAnswerSubmitted) {
+                currentIndex++;
+                renderCurrentQuestion();
+                return;
+            }
+
+            const item = activePool[currentIndex];
+            const isFrPrompt = item.direction === 'FR_DE';
+            const correctAnswer = isFrPrompt ? item.de : item.fr;
+            const userInput = document.getElementById('write-input').value;
+
+            if (!userInput.trim()) return;
+
+            isAnswerSubmitted = true;
+            totalAnsweredCount++;
+
+            const normUser = cleanString(userInput);
+            const normCorrect = cleanString(correctAnswer);
+
+            const normParts = normCorrect.split(/[\/,]/).map(s => s.trim());
+            const isCorrect = normParts.some(part => normUser === part || normUser === normCorrect);
+
+            const feedback = document.getElementById('write-feedback');
+            const inputEl = document.getElementById('write-input');
+            const submitBtn = document.getElementById('write-submit-btn');
+
+            feedback.classList.remove('hidden');
+            inputEl.disabled = true;
+
+            if (isCorrect) {
+                correctAnswersCount++;
+                score += 15;
+                streak++;
+                feedback.className = "p-4 rounded-xl text-center font-bold text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check"></i> Richtig! Perfect! (+15 Pkt)`;
+                inputEl.classList.add('border-emerald-500', 'bg-emerald-950/30');
+            } else {
+                streak = 0;
+                feedback.className = "p-4 rounded-xl text-center font-bold text-sm bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Leider falsch! Richtige Antwort: <strong>${correctAnswer}</strong>`;
+                inputEl.classList.add('border-rose-500', 'bg-rose-950/30');
+            }
+
+            saveStats();
+            submitBtn.innerText = 'Weiter ➔';
+            submitBtn.disabled = false;
+        }
+
+        // SUMMARY SCREEN
+        function showSummary() {
+            document.getElementById('view-mc').classList.add('hidden');
+            document.getElementById('view-card').classList.add('hidden');
+            document.getElementById('view-write').classList.add('hidden');
+            document.getElementById('view-summary').classList.remove('hidden');
+
+            const accuracy = totalAnsweredCount > 0 ? Math.round((correctAnswersCount / totalAnsweredCount) * 100) : 100;
+
+            document.getElementById('summary-total').innerText = activePool.length;
+            document.getElementById('summary-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('summary-score').innerText = `+${correctAnswersCount * 10}`;
+            
+            document.getElementById('progress-bar').style.width = '100%';
+        }
+
+        function restartSession() {
+            changeFilter();
+            setMode(currentMode);
+        }
+    </script>
+</body>
+</html>
